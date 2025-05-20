@@ -1,11 +1,3 @@
-// import { greetUser } from '$utils/greet';
-
-// window.Webflow ||= [];
-// window.Webflow.push(() => {
-//   const name = 'John Doe';
-//   greetUser(name);
-// });
-
 import { createAuth0Client } from '@auth0/auth0-spa-js';
 
 // It should be loaded asynchronously so it doesn't affect page load times.
@@ -28,10 +20,14 @@ const init = async () => {
   const code = url.get('code');
 
   if (code) {
-    await client.handleRedirectCallback(); //handles redirect after successsful login
+    const { appState } = await client.handleRedirectCallback();
+    const customInfo = appState?.customInfo
+    // await client.handleRedirectCallback(); //handles redirect after successsful login
     console.log("redirected after login")
     const user = await client.getUser();
     console.log(user)
+    console.log("info:")
+    console.log(customInfo)
     history.replaceState({}, document.title, window.location.origin + window.location.pathname);
   }
 
@@ -41,8 +37,25 @@ const init = async () => {
   // const accessDenied = document.querySelector('[Lf-element="deniedEl"]') as HTMLElement;
   // const accessPage = document.querySelector('[Lf-element="mainPage"]');
 
-  // ////////////User authentication
-  // const isLoggedIn = await client.isAuthenticated(); //check if user is logged in or not
+  ////////////User authentication
+  const isLoggedIn = await client.isAuthenticated(); //check if user is logged in or not
+
+  const showButtons = function () {
+    if (!loginUser || !logoutBtn || !signUpUser) return;
+
+    if (isLoggedIn) {
+      loginUser.style.visibility = "hidden"
+      logoutBtn.style.visibility = "visible"
+      signUpUser.style.visibility = "hidden"
+    }
+    else if (!isLoggedIn) {
+      loginUser.style.visibility = "visible"
+      logoutBtn.style.visibility = "hidden"
+      signUpUser.style.visibility = "visible"
+    }
+  }
+
+  showButtons()
 
   // const unregisteredUser = function () {
   //   if (!isLoggedIn) {
@@ -72,12 +85,18 @@ const init = async () => {
     if (!loginUser || !logoutBtn || !signUpUser) return;
 
     loginUser.addEventListener('click', async (e) => {
-      (await client).loginWithRedirect(); //calling the auth0 login function on click
+      (await client).loginWithRedirect(
+        {
+          appState: {
+            customInfo: 'value1',
+            custom_param2: 'value2',
+          },
+        }
+      ); //calling the auth0 login function on click
     });
 
     ///logout button
     logoutBtn.addEventListener('click', async () => {
-      // console.log("clicked")
       (await client).logout({
         logoutParams: {
           returnTo: 'https://catalog-4006cd-92548d0ba6-2ad8a3acb4830.webflow.io/'
