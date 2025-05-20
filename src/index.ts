@@ -12,10 +12,15 @@ const init = async () => {
 
   console.log(client)
 
+  ///////////////Current User
+  let currentUser = { email: "" }
+
   ///////////////Get buttons
   const logoutButton = document.getElementById('logout-button');
   const loginButton = document.getElementById('login-button');
   const signUpButton = document.getElementById('signup-button');
+
+  const loggedInUsername = document.getElementById('logged-in-username');
 
   const contactStorageButtonActive = document.getElementById('contact-storage-button-active') as HTMLButtonElement;
   const contactStorageButtonInactive = document.getElementById('contact-storage-button-inactive') as HTMLButtonElement;
@@ -25,27 +30,39 @@ const init = async () => {
   const contactStoragePopup = document.getElementById('contact-storage-popup');
   const contactComputingPopup = document.getElementById('contact-computing-popup');
 
+  const contactStorageEmail = document.getElementById('email-3') as HTMLInputElement
+  const contactComputingEmail = document.getElementById('email-4') as HTMLInputElement
+
   ///////////////Redirect after login logic
   const url = new URLSearchParams(window.location.search);
   const code = url.get('code');
 
   if (code) {
-    if (!loginButton || !logoutButton || !signUpButton || !contactStorageButtonActive || !contactStorageButtonInactive || !contactComputingButtonActive || !contactComputingButtonInactive || !contactStoragePopup || !contactComputingPopup) {
+    if (!loginButton || !logoutButton || !signUpButton || !loggedInUsername || !contactStorageButtonActive || !contactStorageButtonInactive || !contactComputingButtonActive || !contactComputingButtonInactive || !contactStoragePopup || !contactComputingPopup) {
       console.log("button(s) missing")
     }
     else {
       // console.log("redirected after login")
       const { appState } = await client.handleRedirectCallback();
       const user = await client.getUser();
-      // console.log(user)
-      const originButtonClicked = appState?.originButtonClicked
-      console.log("info:")
-      console.log(originButtonClicked)
-      if (originButtonClicked == 'contactStorage') {
-        contactStoragePopup.style.display = 'flex'
+      if (user) {
+        currentUser = user
+        const username = user.name ? user.name : ""
+        loggedInUsername.textContent = username
       }
-      if (originButtonClicked == 'contactComputing') {
+      console.log("user:")
+      console.log(user)
+      const originButtonClicked = appState?.originButtonClicked
+      console.log("button origin:")
+      console.log(originButtonClicked)
+      if (originButtonClicked == 'contactStorage' && user) {
+        contactStoragePopup.style.display = 'flex'
+        contactStorageEmail.value = user.email ? user.email : ""
+      }
+      if (originButtonClicked == 'contactComputing' && user) {
         contactComputingPopup.style.display = 'flex'
+        contactComputingEmail.value = user.email ? user.email : ""
+
       }
       history.replaceState({}, document.title, window.location.origin + window.location.pathname);
     }
@@ -56,12 +73,14 @@ const init = async () => {
 
   ////////////Button show/hide logic
   const showButtons = function () {
-    if (!loginButton || !logoutButton || !signUpButton || !contactStorageButtonActive || !contactStorageButtonInactive || !contactComputingButtonActive || !contactComputingButtonInactive) return;
+    if (!loginButton || !logoutButton || !signUpButton || !loggedInUsername || !contactStorageButtonActive || !contactStorageButtonInactive || !contactComputingButtonActive || !contactComputingButtonInactive) return;
 
     if (isLoggedIn) {
       loginButton.style.display = "none"
       logoutButton.style.display = "inline-block"
       signUpButton.style.display = "none"
+
+      loggedInUsername.style.display = 'inline-block'
 
       contactStorageButtonActive.style.display = "block";
       contactComputingButtonActive.style.display = "block";
@@ -73,6 +92,8 @@ const init = async () => {
       loginButton.style.display = "inline-block"
       logoutButton.style.display = "none"
       signUpButton.style.display = "inline-block"
+
+      loggedInUsername.style.display = 'none'
 
       contactStorageButtonActive.style.display = "none";
       contactComputingButtonActive.style.display = "none";
@@ -89,7 +110,7 @@ const init = async () => {
   window.Webflow ||= [];
   window.Webflow.push(() => {
 
-    if (!loginButton || !logoutButton || !signUpButton || !contactStorageButtonInactive || !contactComputingButtonInactive) return;
+    if (!loginButton || !logoutButton || !signUpButton || !contactStorageButtonActive || !contactStorageButtonInactive || !contactComputingButtonActive || !contactComputingButtonInactive) return;
 
     loginButton.addEventListener('click', async (e) => {
       (await client).loginWithRedirect(
@@ -135,6 +156,22 @@ const init = async () => {
             },
           }
         );
+      })
+    }
+
+    if (isLoggedIn) {
+      contactStorageButtonActive.addEventListener('click', async (e) => {
+        if (contactStoragePopup && currentUser && currentUser.email) {
+          contactStoragePopup.style.display = 'flex'
+          contactStorageEmail.value = currentUser.email ? currentUser.email : ""
+        }
+      })
+
+      contactComputingButtonActive.addEventListener('click', async (e) => {
+        if (contactComputingPopup && currentUser && currentUser.email) {
+          contactComputingPopup.style.display = 'flex'
+          contactComputingEmail.value = currentUser.email ? currentUser.email : ""
+        }
       })
     }
   });
