@@ -13,7 +13,7 @@ const init = async () => {
   console.log("Auth0 Client:")
   console.log(client)
 
-  const user = await client.getUser();
+  let user = await client.getUser();
 
   ///////////////Get buttons
   const signUpButton = document.getElementById('signup-button');
@@ -30,7 +30,11 @@ const init = async () => {
   const contactStoragePopup = document.getElementById('contact-storage-popup');
   const contactComputingPopup = document.getElementById('contact-computing-popup');
 
+  const contactStorageName = document.getElementById('name-3') as HTMLInputElement
+  const contactStoragePhone = document.getElementById('Phone-Number') as HTMLInputElement
   const contactStorageEmail = document.getElementById('email-3') as HTMLInputElement
+  const contactComputingName = document.getElementById('name-4') as HTMLInputElement
+  const contactComputingPhone = document.getElementById('Phone-Number-2') as HTMLInputElement
   const contactComputingEmail = document.getElementById('email-4') as HTMLInputElement
 
   ///////////////Redirect after login logic
@@ -43,7 +47,7 @@ const init = async () => {
     }
     else {
       const { appState } = await client.handleRedirectCallback();
-      // const user = await client.getUser();
+      user = await client.getUser();
 
       if (user) {
         console.log("metadata")
@@ -55,10 +59,14 @@ const init = async () => {
       const originButtonClicked = appState?.originButtonClicked
       if (originButtonClicked == 'contactStorage' && user) {
         contactStoragePopup.style.display = 'flex'
+        contactStorageName.value = (user.user_metadata && user.user_metadata.full_name) ? user.user_metadata.full_name : ""
+        contactStoragePhone.value = (user.user_metadata && user.user_metadata.phone_number) ? user.user_metadata.phone_number : ""
         contactStorageEmail.value = user.email ? user.email : ""
       }
       if (originButtonClicked == 'contactComputing' && user) {
         contactComputingPopup.style.display = 'flex'
+        contactComputingName.value = (user.user_metadata && user.user_metadata.full_name) ? user.user_metadata.full_name : ""
+        contactComputingPhone.value = (user.user_metadata && user.user_metadata.phone_number) ? user.user_metadata.phone_number : ""
         contactComputingEmail.value = user.email ? user.email : ""
 
       }
@@ -173,16 +181,20 @@ const init = async () => {
 
     if (isLoggedIn) {
       contactStorageButtonActive.addEventListener('click', async (e) => {
-        if (contactStoragePopup && currentUser && currentUser.email) {
+        if (contactStoragePopup && user && user.email) {
           contactStoragePopup.style.display = 'flex'
-          contactStorageEmail.value = currentUser.email ? currentUser.email : ""
+          contactStorageName.value = (user.user_metadata && user.user_metadata.full_name) ? user.user_metadata.full_name : ""
+          contactStoragePhone.value = (user.user_metadata && user.user_metadata.phone_number) ? user.user_metadata.phone_number : ""
+          contactStorageEmail.value = user.email ? user.email : ""
         }
       })
 
       contactComputingButtonActive.addEventListener('click', async (e) => {
-        if (contactComputingPopup && currentUser && currentUser.email) {
+        if (contactComputingPopup && user && user.email) {
           contactComputingPopup.style.display = 'flex'
-          contactComputingEmail.value = currentUser.email ? currentUser.email : ""
+          contactComputingName.value = (user.user_metadata && user.user_metadata.full_name) ? user.user_metadata.full_name : ""
+          contactComputingPhone.value = (user.user_metadata && user.user_metadata.phone_number) ? user.user_metadata.phone_number : ""
+          contactComputingEmail.value = user.email ? user.email : ""
         }
       })
     }
