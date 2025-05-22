@@ -1,4 +1,4 @@
-import { createAuth0Client } from '@auth0/auth0-spa-js';
+import { createAuth0Client, User } from '@auth0/auth0-spa-js';
 
 const init = async () => {
   ///////////////Create Auth0 client
@@ -10,15 +10,15 @@ const init = async () => {
     },
   });
 
+  console.log("Auth0 Client:")
   console.log(client)
 
-  ///////////////Current User
-  let currentUser = { email: "" }
+  const user = await client.getUser();
 
   ///////////////Get buttons
-  const logoutButton = document.getElementById('logout-button');
-  const loginButton = document.getElementById('login-button');
   const signUpButton = document.getElementById('signup-button');
+  const loginButton = document.getElementById('login-button');
+  const logoutButton = document.getElementById('logout-button');
 
   const loggedInUsername = document.getElementById('logged-in-username');
 
@@ -42,19 +42,17 @@ const init = async () => {
       console.log("button(s) missing")
     }
     else {
-      // console.log("redirected after login")
       const { appState } = await client.handleRedirectCallback();
-      const user = await client.getUser();
+      // const user = await client.getUser();
+
       if (user) {
-        currentUser = user
+        console.log("metadata")
+        console.log(user.user_metadata)
         const username = user.name ? user.name : ""
         loggedInUsername.textContent = username
       }
-      console.log("user:")
-      console.log(user)
+
       const originButtonClicked = appState?.originButtonClicked
-      console.log("button origin:")
-      console.log(originButtonClicked)
       if (originButtonClicked == 'contactStorage' && user) {
         contactStoragePopup.style.display = 'flex'
         contactStorageEmail.value = user.email ? user.email : ""
@@ -76,6 +74,10 @@ const init = async () => {
     if (!loginButton || !logoutButton || !signUpButton || !loggedInUsername || !contactStorageButtonActive || !contactStorageButtonInactive || !contactComputingButtonActive || !contactComputingButtonInactive) return;
 
     if (isLoggedIn) {
+
+      console.log("current user in show buttons")
+      console.log(user)
+
       loginButton.style.display = "none"
       logoutButton.style.display = "inline-block"
       signUpButton.style.display = "none"
@@ -132,7 +134,17 @@ const init = async () => {
     });
 
     signUpButton.addEventListener('click', async (e) => {
-      console.log("signup clicked")
+      (await client).loginWithRedirect(
+        {
+          authorizationParams: {
+            screen_hint: "signup"
+          },
+          appState: {
+            originButtonClicked: 'signup',
+            custom_param2: 'value2',
+          },
+        }
+      );
     })
 
     if (!isLoggedIn) {
