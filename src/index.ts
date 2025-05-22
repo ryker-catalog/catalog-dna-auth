@@ -16,11 +16,8 @@ const init = async () => {
   let user = await client.getUser();
 
   ///////////////Get buttons
-  const signUpButton = document.getElementById('signup-button');
   const loginButton = document.getElementById('login-button');
   const logoutButton = document.getElementById('logout-button');
-
-  const loggedInUsername = document.getElementById('logged-in-username');
 
   const contactStorageButtonActive = document.getElementById('contact-storage-button-active') as HTMLButtonElement;
   const contactStorageButtonInactive = document.getElementById('contact-storage-button-inactive') as HTMLButtonElement;
@@ -42,7 +39,7 @@ const init = async () => {
   const code = url.get('code');
 
   if (code) {
-    if (!loginButton || !logoutButton || !signUpButton || !loggedInUsername || !contactStorageButtonActive || !contactStorageButtonInactive || !contactComputingButtonActive || !contactComputingButtonInactive || !contactStoragePopup || !contactComputingPopup) {
+    if (!loginButton || !logoutButton || !contactStorageButtonActive || !contactStorageButtonInactive || !contactComputingButtonActive || !contactComputingButtonInactive || !contactStoragePopup || !contactComputingPopup) {
       console.log("button(s) missing")
     }
     else {
@@ -52,21 +49,19 @@ const init = async () => {
       if (user) {
         console.log("metadata")
         console.log(user.user_metadata)
-        const username = user.name ? user.name : ""
-        loggedInUsername.textContent = username
       }
 
       const originButtonClicked = appState?.originButtonClicked
       if (originButtonClicked == 'contactStorage' && user) {
         contactStoragePopup.style.display = 'flex'
         contactStorageName.value = (user.user_metadata && user.user_metadata.full_name) ? user.user_metadata.full_name : ""
-        contactStoragePhone.value = (user.user_metadata && user.user_metadata.phone_number) ? user.user_metadata.phone_number : ""
+        contactStoragePhone.value = (user.user_metadata && user.user_metadata.phone_number) ? user.user_metadata.phone_number.national_format : ""
         contactStorageEmail.value = user.email ? user.email : ""
       }
       if (originButtonClicked == 'contactComputing' && user) {
         contactComputingPopup.style.display = 'flex'
         contactComputingName.value = (user.user_metadata && user.user_metadata.full_name) ? user.user_metadata.full_name : ""
-        contactComputingPhone.value = (user.user_metadata && user.user_metadata.phone_number) ? user.user_metadata.phone_number : ""
+        contactComputingPhone.value = (user.user_metadata && user.user_metadata.phone_number) ? user.user_metadata.phone_number.national_format : ""
         contactComputingEmail.value = user.email ? user.email : ""
 
       }
@@ -79,7 +74,7 @@ const init = async () => {
 
   ////////////Button show/hide logic
   const showButtons = function () {
-    if (!loginButton || !logoutButton || !signUpButton || !loggedInUsername || !contactStorageButtonActive || !contactStorageButtonInactive || !contactComputingButtonActive || !contactComputingButtonInactive) return;
+    if (!loginButton || !logoutButton || !contactStorageButtonActive || !contactStorageButtonInactive || !contactComputingButtonActive || !contactComputingButtonInactive) return;
 
     if (isLoggedIn) {
 
@@ -88,9 +83,6 @@ const init = async () => {
 
       loginButton.style.display = "none"
       logoutButton.style.display = "inline-block"
-      signUpButton.style.display = "none"
-
-      loggedInUsername.style.display = 'inline-block'
 
       contactStorageButtonActive.style.display = "block";
       contactComputingButtonActive.style.display = "block";
@@ -101,9 +93,6 @@ const init = async () => {
     else if (!isLoggedIn) {
       loginButton.style.display = "inline-block"
       logoutButton.style.display = "none"
-      signUpButton.style.display = "inline-block"
-
-      loggedInUsername.style.display = 'none'
 
       contactStorageButtonActive.style.display = "none";
       contactComputingButtonActive.style.display = "none";
@@ -120,7 +109,7 @@ const init = async () => {
   window.Webflow ||= [];
   window.Webflow.push(() => {
 
-    if (!loginButton || !logoutButton || !signUpButton || !contactStorageButtonActive || !contactStorageButtonInactive || !contactComputingButtonActive || !contactComputingButtonInactive) return;
+    if (!loginButton || !logoutButton || !contactStorageButtonActive || !contactStorageButtonInactive || !contactComputingButtonActive || !contactComputingButtonInactive) return;
 
     loginButton.addEventListener('click', async (e) => {
       (await client).loginWithRedirect(
@@ -140,20 +129,6 @@ const init = async () => {
         }
       });
     });
-
-    signUpButton.addEventListener('click', async (e) => {
-      (await client).loginWithRedirect(
-        {
-          authorizationParams: {
-            screen_hint: "signup"
-          },
-          appState: {
-            originButtonClicked: 'signup',
-            custom_param2: 'value2',
-          },
-        }
-      );
-    })
 
     if (!isLoggedIn) {
       contactStorageButtonInactive.addEventListener('click', async (e) => {
@@ -184,7 +159,7 @@ const init = async () => {
         if (contactStoragePopup && user && user.email) {
           contactStoragePopup.style.display = 'flex'
           contactStorageName.value = (user.user_metadata && user.user_metadata.full_name) ? user.user_metadata.full_name : ""
-          contactStoragePhone.value = (user.user_metadata && user.user_metadata.phone_number) ? user.user_metadata.phone_number : ""
+          contactStoragePhone.value = (user.user_metadata && user.user_metadata.phone_number) ? user.user_metadata.phone_number.national_format : ""
           contactStorageEmail.value = user.email ? user.email : ""
         }
       })
@@ -193,7 +168,7 @@ const init = async () => {
         if (contactComputingPopup && user && user.email) {
           contactComputingPopup.style.display = 'flex'
           contactComputingName.value = (user.user_metadata && user.user_metadata.full_name) ? user.user_metadata.full_name : ""
-          contactComputingPhone.value = (user.user_metadata && user.user_metadata.phone_number) ? user.user_metadata.phone_number : ""
+          contactComputingPhone.value = (user.user_metadata && user.user_metadata.phone_number) ? user.user_metadata.phone_number.national_format : ""
           contactComputingEmail.value = user.email ? user.email : ""
         }
       })
