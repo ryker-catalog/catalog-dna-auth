@@ -1,4 +1,6 @@
 import { initAsimovPage } from '$utils/asimov-page';
+import { initDnablotPage } from '$utils/dnablot-page';
+import { initOtherPages } from '$utils/other-pages';
 import { initServicesPage } from '$utils/services-page';
 import { initWritersPage } from '$utils/writers-page';
 import { createAuth0Client } from '@auth0/auth0-spa-js';
@@ -30,10 +32,10 @@ const init = async () => {
     initAsimovPage(client, user, currentUrl)
   }
   else if (currentUrl.includes('https://catalog-4006cd-92548d0ba6-2ad8a3acb4830.webflow.io/dnablot')) {
-    console.log("dnablot page")
+    initDnablotPage(client, user, currentUrl)
   }
   else {
-    console.log("other page")
+    initOtherPages(client, user, currentUrl)
   }
 };
 
