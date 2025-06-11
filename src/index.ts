@@ -1,4 +1,6 @@
+import { initAsimovPage } from '$utils/asimov-page';
 import { initServicesPage } from '$utils/services-page';
+import { initWritersPage } from '$utils/writers-page';
 import { createAuth0Client } from '@auth0/auth0-spa-js';
 
 const init = async () => {
@@ -18,16 +20,16 @@ const init = async () => {
 
   let currentUrl = window.location.href
 
-  if (currentUrl == 'https://catalog-4006cd-92548d0ba6-2ad8a3acb4830.webflow.io/services') {
+  if (currentUrl.includes('https://catalog-4006cd-92548d0ba6-2ad8a3acb4830.webflow.io/services')) {
     initServicesPage(client, user, currentUrl)
   }
-  else if (currentUrl == 'https://catalog-4006cd-92548d0ba6-2ad8a3acb4830.webflow.io/dna-writers') {
-    console.log("dna-writers page")
+  else if (currentUrl.includes('https://catalog-4006cd-92548d0ba6-2ad8a3acb4830.webflow.io/dna-writers')) {
+    initWritersPage(client, user, currentUrl)
   }
-  else if (currentUrl == 'https://catalog-4006cd-92548d0ba6-2ad8a3acb4830.webflow.io/asimovpress') {
-    console.log("asimov page")
+  else if (currentUrl.includes('https://catalog-4006cd-92548d0ba6-2ad8a3acb4830.webflow.io/asimovpress')) {
+    initAsimovPage(client, user, currentUrl)
   }
-  else if (currentUrl == 'https://catalog-4006cd-92548d0ba6-2ad8a3acb4830.webflow.io/dnablot') {
+  else if (currentUrl.includes('https://catalog-4006cd-92548d0ba6-2ad8a3acb4830.webflow.io/dnablot')) {
     console.log("dnablot page")
   }
   else {
