@@ -10,6 +10,8 @@ const init = async () => {
   const client = await createAuth0Client({
     clientId: '4CqRLH3KK9xw54bDu8aYcgLSgeA3bku6', //cleintID from auth0
     domain: 'dev-bjajppuyg4p1ypcj.us.auth0.com',//domain from auth0
+    cacheLocation: 'localstorage',
+    useRefreshTokens: true,
     authorizationParams: {
       redirect_uri: 'https://catalog-4006cd-92548d0ba6-2ad8a3acb4830.webflow.io', //Redirect URL after login
     },
